@@ -1,3 +1,4 @@
+import lockfile
 from scapy.layers.l2 import ARP, Ether
 from scapy.sendrecv import sendp, sniff
 from scapy.arch import get_if_hwaddr
@@ -19,20 +20,11 @@ RUNNING = True
 
 def sig_shutdown(signum, frame):
     global RUNNING
+
     RUNNING = False
     syslog.syslog(syslog.LOG_INFO, f"Shutdown signal received, saving sponge addresses to {CONFIG['backend']['running']}")
     save_sponged_addresses(CONFIG['backend']['running'])
     exit(0)
-
-
-def sig_reload(signum, frame):
-    global RUNNING
-    global SPONGED_ADDRESSES
-
-    RUNNING = False
-    syslog.syslog(syslog.LOG_INFO, f"Hangup signal received, reloading sponge addresses from {CONFIG['backend']['initial']}")
-    load_sponged_addresses(CONFIG['backend']['initial'])
-    RUNNING = True
 
 
 def arp_account(packet):
@@ -168,11 +160,11 @@ if __name__ == "__main__":
         exit(1)
 
     with daemon.DaemonContext(
-            pidfile=CONFIG['pid_file'],
+            pidfile=lockfile.FileLock(CONFIG['pid_file']),
             signal_map={
                 signal.SIGTERM: sig_shutdown,
                 signal.SIGTSTP: sig_shutdown,
-                signal.SIGHUP: sig_reload,
+                signal.SIGHUP: sig_shutdown,
             }):
         main()
 
