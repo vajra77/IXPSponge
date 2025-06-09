@@ -1,9 +1,13 @@
+from scapy.layers.l2 import ARP, Ether
+from scapy.sendrecv import sendp
+from scapy.arch import get_if_hwaddr
+from time import sleep
 
 
 class Sponge:
 
-    def __init__(self, mac_address):
-        self._mac_address = mac_address
+    def __init__(self, interface):
+        self._interface = interface
         self._addresses = []
 
     def add(self, address):
@@ -15,6 +19,11 @@ class Sponge:
             self._addresses.remove(address)
 
     def sweep(self, interval):
-        for address in self._addresses:
-            # ARP reply for address
+        src_mac = get_if_hwaddr(self._interface)
+
+        for ip_address in self._addresses:
+            reply = ARP(op=ARP.is_at, hwsrc=src_mac, psrc=ip_address, hwdst="ff:ff:ff:ff:ff:ff", pdst=ip_address)
+            frame = Ether(dst="ff:ff:ff:ff:ff:ff", src=src_mac) / reply
+            sendp(frame, iface=self._interface)
+            sleep(interval)
 
