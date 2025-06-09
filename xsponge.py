@@ -101,7 +101,7 @@ def load_reserved_addresses(filename):
 def save_sponged_addresses(filename):
     with open(filename, 'w') as f:
         data = {'addresses': SPONGED_ADDRESSES}
-        json.dump(data, f) # noqa
+        json.dump(data, f, indent=4) # noqa
 
 
 def usage():
@@ -137,7 +137,7 @@ def main():
 
 if __name__ == "__main__":
 
-    config_file = "xsponge.conf"
+    config_file = "assets/xsponge.conf"
 
     opts, args = getopt.getopt(sys.argv[1:], "hc:", ["help", "config="])
 
