@@ -1,19 +1,23 @@
+from ixpsponge.threads import Sweeper, Monitor, TConfig
 import lockfile
-from time import sleep
 import daemon
 import signal
 import syslog
-import json
-import toml
 import getopt
 import sys
 
-from ixpsponge.threads import Sweeper, Monitor
-from ixpsponge.threads.tconfig import TConfig
+
+ALL_THREADS = []
 
 
 def sig_shutdown(signum, frame):
-    pass
+    for thread in ALL_THREADS:
+        thread.halt()
+
+    for thread in ALL_THREADS:
+        thread.join()
+
+    exit(0)
 
 
 def usage():
@@ -54,11 +58,22 @@ if __name__ == "__main__":
             }):
 
         if config.get('sweeper', 'enabled'):
+            syslog.syslog(syslog.LOG_INFO, "Sweeper thread is enabled")
             sweeper_t = Sweeper(config)
+            ALL_THREADS.append(sweeper_t)
             sweeper_t.start()
 
         if config.get('monitor', 'enabled'):
+            syslog.syslog(syslog.LOG_INFO, "Monitor thread is enabled")
             monitor_t = Monitor(config)
+            ALL_THREADS.append(monitor_t)
             monitor_t.start()
+
+        # join all threads
+        for t in ALL_THREADS:
+            t.join()
+
+
+
 
 

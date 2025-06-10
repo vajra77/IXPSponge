@@ -10,6 +10,7 @@ class TSponge(Thread):
         self._config = config
         self._sponged_addresses = []
         self._reserved_addresses = []
+        self._running = False
 
     @property
     def config(self) -> TConfig:
@@ -22,6 +23,10 @@ class TSponge(Thread):
     @property
     def reserved_addresses(self) -> list:
         return self._reserved_addresses
+
+    @property
+    def running(self) -> bool:
+        return self._running
 
     def reload_reserved_addresses(self):
         self._reserved_addresses.clear()
@@ -58,4 +63,12 @@ class TSponge(Thread):
         filename = self.config.get('general', 'sponged_addresses')
         with open(filename, 'w') as f:
             json.dump(self._sponged_addresses, f)
+
+    def run(self):
+        self._running = True
+
+    def halt(self):
+        self._running = False
+
+
 

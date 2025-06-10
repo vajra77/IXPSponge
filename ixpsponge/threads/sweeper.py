@@ -12,10 +12,12 @@ class Sweeper(TSponge):
         super().__init__(config)
 
     def run(self):
+        super().run()
+
         interval = float(self.config.get('sweeper', 'interval'))
         src_mac = get_if_hwaddr(self.config.get('sweeper', 'interface'))
 
-        while True:
+        while self.running:
             with self.config.lock:
                 self.reload_sponged_addresses()
 
