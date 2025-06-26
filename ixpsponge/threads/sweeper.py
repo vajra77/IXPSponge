@@ -4,6 +4,7 @@ from scapy.arch import get_if_hwaddr
 from time import sleep
 from .tconfig import TConfig
 from .tsponge import TSponge
+import syslog
 
 
 class Sweeper(TSponge):
@@ -17,7 +18,10 @@ class Sweeper(TSponge):
         interval = float(self.config.get('sweeper', 'interval'))
         src_mac = get_if_hwaddr(self.config.get('sweeper', 'interface'))
 
+        syslog.syslog(syslog.LOG_INFO, "before entering")
+
         while self.running:
+
             with self.config.lock:
                 self.reload_sponged_addresses()
 
