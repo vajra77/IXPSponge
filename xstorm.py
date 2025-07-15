@@ -4,12 +4,12 @@ import struct
 import socket
 from scapy.layers.l2 import ARP, Ether
 from scapy.sendrecv import sendp
-from scapy.arch import get_if_hwaddr
+from scapy.arch import get_if_hwaddr, get_if_addr
 
 
 if __name__ == '__main__':
     interface = sys.argv[1]
-    src_addr = sys.argv[2]
+    src_addr = get_if_addr(interface)
     src_mac = get_if_hwaddr(interface)
 
     while True:
