@@ -12,7 +12,9 @@ from scapy.arch import get_if_hwaddr, get_if_addr
 
 
 def usage():
-    print("Usage: xstorm.py -i <interface> -t [arp|dhcp]")
+    print("Usage:")
+    print(" xstorm.py [-i interface] [-t packet_type]")
+    print(" packet_type is one of: arp|dhcp")
 
 
 def run_arp(iface):
@@ -41,8 +43,10 @@ def run_dhcp(iface):
 
 
 if __name__ == '__main__':
+
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "i:t:", ["interface=", "type="])
+        opts, args = getopt.getopt(sys.argv[1:], "hi:t:", ["help", "interface=", "type="])
+
     except getopt.GetoptError as err:
         print(err)  # will print something like "option -a not recognized"
         usage()
@@ -56,13 +60,19 @@ if __name__ == '__main__':
             interface = a
         elif o in ("-t", "--type"):
             pkt_type = a
+        elif o in ("-h", "--help"):
+            usage()
+            sys.exit()
         else:
-            assert False, "unhandled option"
+            # ignore
+            continue
 
-    if pkt_type == "arp":
-        run_arp(interface)
-    elif pkt_type == "dhcp":
-        run_dhcp(interface)
-    else:
-        assert False, "unhandled packet type"
+    match pkt_type:
+        case "arp":
+            run_arp(interface)
+        case "dhcp":
+            run_dhcp(interface)
+        case _:
+            run_arp(interface)
+
 
