@@ -73,6 +73,6 @@ if __name__ == '__main__':
         case "dhcp":
             run_dhcp(interface)
         case _:
-            run_arp(interface)
-
+            print("Unknown packet type")
+            sys.exit()
 
